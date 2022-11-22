@@ -11,7 +11,7 @@ import json
 #<-------------------------------------- Database connections ------------------------------------------------->
 
 class database_connection:
-  def __init__(self,sql_host = "localhost",sql_user="smartAd",sql_pass="WaDl@#smat1!",default_database="S1001",mongo_url ='mongodb://admin:smartories@165.22.208.52:27017/'):
+  def __init__(self,sql_host = "localhost",sql_user="root",sql_pass="quantanics123",default_database="S1001",mongo_url ='mongodb://admin:quantanics123@165.22.208.52:27017/'):
       self.sql_host = sql_host
       self.sql_user = sql_user
       self.sql_password = sql_pass
@@ -844,9 +844,9 @@ def process_data(shiftTimings,hour,machine,collection,shift_list, duration_start
   collection.sort(key=lambda x: x["gateway_time"])
 
   process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_time,shift_list,pdm_end_time)
-  # print(datetime.datetime.strptime(str(end_time), "%Y-%m-%d %H:%M:%S").date())
-  # print(pdm_start_time)
-  # print(pdm_end_time)
+  print(datetime.datetime.strptime(str(end_time), "%Y-%m-%d %H:%M:%S").date())
+  print(pdm_start_time)
+  print(pdm_end_time)
   print("Process Completed!")
 
   return 1
@@ -1039,7 +1039,7 @@ if __name__ == '__main__':
   shift_hours = [int(i.strftime("%H")) for i in shiftTimings]
   shift_min = [int(i.strftime("%M")) for i in shiftTimings]
   shift_list = getShiftList(shiftTimings)
-  hour = "2022-11-15 10:00:00"
+  hour = "2022-10-14 21:00:00"
   hour = datetime.datetime.strptime(hour, '%Y-%m-%d %H:%M:%S')
   #<---------------------- Loop break daywise ------------------------->
   while(True):
