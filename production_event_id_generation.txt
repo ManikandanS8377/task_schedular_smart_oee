@@ -3,7 +3,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `production_event_id_generation`() RE
 BEGIN
 	DECLARE pid varchar(90);
     
-	SELECT count(r_no) into pid FROM pdm_production_info ORDER BY last_updated_on DESC LIMIT 1;
+	SELECT MAX(r_no) into pid FROM pdm_production_info ORDER BY last_updated_on DESC LIMIT 1;
     IF pid = 0 THEN
     	SET pid = pid+1001;
         RETURN pid;
