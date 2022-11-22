@@ -88,7 +88,7 @@ def info_insert_data(machine_id,shift_date,calendar_date,part_id,tool_id,ppc,sta
 def find_device_status(machine_gateway):
   device_gateway = machine_gateway.split("/")
   # device_gateway = "/"+device_gateway[1]+"/"+device_gateway[2]+"/"+"1DeviceStatus"
-  device_gateway ="/chennai/S1001/SMP01/DeviceStatus"
+  device_gateway ="/chennai/S1001/device_status/SMD001"
 
   db_instance = database_connection().connect_mongo()
   collection = db_instance[device_gateway]
