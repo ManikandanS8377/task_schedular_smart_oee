@@ -1,0 +1,73 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `child_records_create`(IN `production_id` VARCHAR(90))
+BEGIN
+    
+    #production info table value get variable declaration
+    DECLARE machinename varchar(90);
+    DECLARE cal_date varchar(99);
+    DECLARE sh_date varchar(99);
+    DECLARE sh_id char(90);
+    DECLARE s_time varchar(90);
+    DECLARE e_time varchar(90);
+    DECLARE actual_scount int(90);
+    
+    DECLARE new_pid varchar(90);
+    DECLARE tool_cid varchar(90);
+    DECLARE part varchar(80);
+    DECLARE t_id varchar(90);
+    DECLARE loop_end int(90);
+    DECLARE part_pc int(90);
+    DECLARE production_count varchar(90);
+    DECLARE pmn BIGINT(90);
+    DECLARE production_check varchar(90);
+    
+    SELECT machine_id,calendar_date,shift_date,shift_id,start_time, end_time,actual_shot_count,production INTO machinename,cal_date,sh_date,sh_id,s_time,e_time,actual_scount,production_check from pdm_production_info WHERE production_event_id = production_id;    
+    SELECT  tool_changeover_id,no_of_part,count(tool_changeover_id),tool_id INTO tool_cid ,loop_end,pmn,t_id  FROM pdm_tool_changeover WHERE machine_id = machinename ORDER BY last_updated_on DESC LIMIT 1;
+    
+    #SELECT machinename;
+    #SELECT tool_cid;
+    #SELECT loop_end;
+    IF pmn > 0 THEN
+        FOR i IN 1..loop_end
+        DO
+            #tool change over one by one part selection
+            SELECT part_id INTO part FROM tool_changeover WHERE id = tool_cid AND part_order = i;
+        
+            #part based nic selection
+            SELECT part_produced_cycle INTO part_pc FROM settings_part_current WHERE part_id = part;
+       
+           #SELECT actual_scount;
+           #SELECT part_pc;
+           # each parts based production count assigning
+           SELECT actual_scount*part_pc INTO production_count;
+        
+        IF i = 1 THEN
+            IF production_check = NULL THEN
+                UPDATE `pdm_production_info` SET `part_id`=part,`tool_id`=t_id,`hierarchy`='parent' WHERE production_event_id = production_id;
+            ELSE
+                UPDATE `pdm_production_info` SET `part_id`=part,`tool_id`=t_id,`production`=production_count,`correction_min_counts`=CONCAT('-',production_count),`rejection_max_counts`=production_count,`hierarchy`='parent' WHERE production_event_id = production_id;
+            END IF;
+            #updation query
+            #SELECT CONCAT('FIRST LOOP',part);
+            #SELECT production_count;
+        ELSEIF i > 1 THEN
+            SELECT id_generation() INTO new_pid;
+            #child record insertion
+            IF production_check = NULL THEN
+                INSERT INTO `pdm_production_info`(`production_event_id`,`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`, `part_id`, `tool_id`, `actual_shot_count`,`hierarchy`) VALUES(CONCAT('PE',new_pid),machinename,cal_date,sh_date,sh_id,s_time,e_time,part,t_id,actual_scount,production_id); 
+            ELSE
+                INSERT INTO `pdm_production_info`(`production_event_id`,`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`, `part_id`, `tool_id`, `actual_shot_count`, `production`, `correction_min_counts`, `rejection_max_counts`,`hierarchy`) VALUES(CONCAT('PE',new_pid),machinename,cal_date,sh_date,sh_id,s_time,e_time,part,t_id,actual_scount,production_count,CONCAT('-',production_count),production_count,production_id); 
+            END IF;
+            #SELECT part;
+            #SELECT production_count;
+        END IF;
+    END FOR;
+    #SELECT  part_id  FROM tool_changeover WHERE id = tool_cid; 
+    #SELECT tool_cid;
+    #SELECT part;
+    END IF;
+
+
+
+END$$
+DELIMITER ;
