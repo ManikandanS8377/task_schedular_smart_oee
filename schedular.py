@@ -8,10 +8,15 @@ import time
 from itertools import groupby
 import json
 
+# For identify the current timestamp
+import datetime
+import pytz
+from pytz import timezone 
+
 #<-------------------------------------- Database connections ------------------------------------------------->
 
 class database_connection:
-  def __init__(self,sql_host = "localhost",sql_user="smartAd",sql_pass="WaDl@#smat1!",default_database="S1001",mongo_url ='mongodb://admin:smartories@165.22.208.52:27017/'):
+  def __init__(self,sql_host = "localhost",sql_user="root",sql_pass="quantanics123",default_database="S1001",mongo_url ='mongodb://admin:quantanics123@165.22.208.52:27017/'):
       self.sql_host = sql_host
       self.sql_user = sql_user
       self.sql_password = sql_pass
@@ -122,9 +127,9 @@ def split_past_future(active_records):
   future_data = []
   past_data = []
 
-  current_hour = int(int(24 if int(int(datetime.datetime.now().strftime("%H")))==0 else int(datetime.datetime.now().strftime("%H"))))-1
-  current_end_hour = int(int(24 if int(int(datetime.datetime.now().strftime("%H")))==0 else int(datetime.datetime.now().strftime("%H"))))
-  current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  current_hour = int(int(24 if int(int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H")))==0 else int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H"))))-1
+  current_end_hour = int(int(24 if int(int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H")))==0 else int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H"))))
+  current_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
   if int(current_end_hour)==0:
     current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
 
@@ -226,7 +231,7 @@ def process_data_pdm_info(machine,active_records, pdm_start_time, pdm_end_time,n
   present_data,past_data,future_data = split_past_future(active_records)
   shift = getTabledetails(machine)
   machine_id = shift[0]
-  calendar_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  calendar_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
 
   start_time = pdm_start_time
   end_time = pdm_end_time
@@ -270,7 +275,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
   shift = getTabledetails(machine)
   machine_id = shift[0][0]
   source = "Main"
-  calendar_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  calendar_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
 
   end_time_t = str(calendar_date)+" "+str(pdm_end_time)
   end_time_tmp = datetime.datetime.strptime(str(end_time_t), '%Y-%m-%d %H:%M:%S')
@@ -958,7 +963,7 @@ def add_status_raw_data(lst):
 
 def getRawData(machine,split = 0,split_start = 0, split_end = 0):
 
-  now = datetime.datetime.now()
+  now = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
   db_instance = database_connection().connect_mongo()
   collection = db_instance[machine]
   s_hrs = str(int(24 if now.strftime("%H")=="00" else now.strftime("%H"))-1).zfill(2)
@@ -1041,7 +1046,7 @@ if __name__ == '__main__':
 
   #<---------------------- Loop break daywise ------------------------->
   while(True):
-    now = datetime.datetime.now() # Take current time to check the current shift hours
+    now = datetime.datetime.now(pytz.timezone('Asia/Kolkata')) # Take current time to check the current shift hours
     break_loop = 0
 
     if(int(now.strftime("%M"))==0): # you can change time here to run the code
@@ -1081,7 +1086,6 @@ if __name__ == '__main__':
 
 
 #<------------------------------------------------------ end ---------------------------------------------------->
-
 
 
 

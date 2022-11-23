@@ -1030,7 +1030,7 @@ def getShiftList(shiftTimings):
 
     id_v = chr(ord(id_v) + 1)
   return shift_dict
-
+  
 #<------------------------------------- Main Function ------------------------------------------------>
 
 if __name__ == '__main__':
@@ -1039,7 +1039,7 @@ if __name__ == '__main__':
   shift_hours = [int(i.strftime("%H")) for i in shiftTimings]
   shift_min = [int(i.strftime("%M")) for i in shiftTimings]
   shift_list = getShiftList(shiftTimings)
-  hour = "2022-10-14 21:00:00"
+  hour = "2022-10-22 22:00:00"
   hour = datetime.datetime.strptime(hour, '%Y-%m-%d %H:%M:%S')
   #<---------------------- Loop break daywise ------------------------->
   while(True):
