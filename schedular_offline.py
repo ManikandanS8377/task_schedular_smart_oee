@@ -313,15 +313,16 @@ def getShiftList(shiftTimings):
 
 def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_time):
   device_state = find_device_status(offline_gateway)
-  time_update = str(device_state['updated_on']).split(" ")
+  time_update = str(device_state['updated_on']).split(".")
+  time_update = str(time_update[0]).split(" ")
   time_update=time_update[0]+" "+time_update[1]
   time_update = datetime.datetime.strptime(str(time_update), '%Y-%m-%d %H:%M:%S')
   time_update_date = time_update.date()
   time_update_time = time_update.time().hour
 
   # date_temp = datetime.datetime.strptime(past_data[0]['gateway_time'], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
-  device_status_net = device_state['device_status']
-  device_status_pow = device_state['meta_data']['is_device_powered_off']
+  device_status_net = device_state['data']['device_status']
+  device_status_pow = device_state['data']['meta_data']['is_device_powered_off']
 
   present_data,past_data,future_data = split_past_future(collection)
   if len(present_data)>0:
@@ -439,14 +440,14 @@ def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_
                 # Temporarly Hiding
                 # if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(calendar_date), "%Y-%m-%d").date()):
                 if device_status_pow=="true":
-                  time_update_end = str(device_state['meta_data']['device_off_start_time']).split(" ")
+                  time_update_end = str(device_state['data']['meta_data']['device_off_start_time']).split(" ")
                   time_update_end=time_update_end[0]+" "+time_update_end[1]
                   time_update_end = datetime.datetime.strptime(str(time_update_end), '%Y-%m-%d %H:%M:%S')
                   time_update_start = previous_data[2]+" "+previous_end
                   time_update_start = datetime.datetime.strptime(str(time_update_start), '%Y-%m-%d %H:%M:%S')
                   if (time_update_start.date() == time_update_end.date() and time_update_start.time() >= time_update_end.time()):
-                    end_time = str(device_state['meta_data']['device_off_start_time']).split(" ")[1]
-                    duration = find_duration(shift_date,str(str(device_state['meta_data']['device_off_start_time']).split(" ")[0]),previous_start,end_time)
+                    end_time = str(device_state['data']['meta_data']['device_off_start_time']).split(" ")[1]
+                    duration = find_duration(shift_date,str(str(device_state['data']['meta_data']['device_off_start_time']).split(" ")[0]),previous_start,end_time)
                     
                     sql_query1 = "UPDATE `pdm_events` SET `end_time`=%s,`duration`=%s WHERE `r_no`=%s"
                     cursor.execute(sql_query1,(end_time,duration,previous_rno,))
@@ -460,7 +461,7 @@ def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_
 
                     start_time = end_time
 
-                    time_update_end = str(device_state['meta_data']['device_off_end_time']).split(" ")
+                    time_update_end = str(device_state['data']['meta_data']['device_off_end_time']).split(" ")
                     time_update_end=time_update_end[0]+" "+time_update_end[1]
                     time_update_end = datetime.datetime.strptime(str(time_update_end), '%Y-%m-%d %H:%M:%S')
 

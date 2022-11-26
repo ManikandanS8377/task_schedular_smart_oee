@@ -88,7 +88,7 @@ def info_insert_data(production_id,machine_gateway,machine_id,shift_date,calenda
     production = 0
   else:
     device_state = find_device_status(machine_gateway)
-    if device_state['device_status'] == "Offline":
+    if device_state['data']['device_status'] == "Offline":
       production = "Null"
     else:
       production =0
@@ -297,7 +297,8 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
   s=0 
   c = 0
   device_state = find_device_status(machine)
-  time_update = str(device_state['updated_on']).split(" ")
+  time_update = str(device_state['updated_on']).split(".")
+  time_update = str(time_update[0]).split(" ")
   time_update=time_update[0]+" "+time_update[1]
   time_update = datetime.datetime.strptime(str(time_update), '%Y-%m-%d %H:%M:%S')
   time_update_date = time_update.date()
@@ -620,10 +621,14 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
           previous_rno = previous_data[0]
           previous_event_id = previous_data[1]
 
-          last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
+          x_d = str(device_state['updated_on']).split(".")
+          x_d = str(x_d[0]).split(" ")
+          x_d = x_d[0]+" "+x_d[1]
+
+          last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
           last_status_time = str(last_status_time).split(" ")
           
-          if device_state['device_status']=="Online":
+          if device_state['data']['device_status']=="Online":
             duration = find_duration(shift_date,shift_date,previous_start,s_time)
             end_time =s_time
 
@@ -694,7 +699,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
           list_index = shift_list_list.index(shift_id)
           shift_start_duration = shiftTimings[list_index]
           # Function for find the duration of the event
-          if device_state['device_status']=="Online":
+          if device_state['data']['device_status']=="Online":
             duration = find_duration(shift_date,shift_date,shift_start_duration,s_time) 
             shot_count = 0;
             start_time =shift_start_duration;
@@ -706,7 +711,11 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             cursor.execute(sql_query,val)
             db_instance.commit()
           else:
-            last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
+            x_d = str(device_state['updated_on']).split(".")
+            x_d = str(x_d[0]).split(" ")
+            x_d = x_d[0]+" "+x_d[1]
+
+            last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
             last_status_time = str(last_status_time).split(" ")
             start_time =shift_start_duration;
             if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
@@ -758,7 +767,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
         previous_rno = previous_data[0]
         previous_event_id = previous_data[1]
 
-        if device_state['device_status']=="Online":
+        if device_state['data']['device_status']=="Online":
           duration = find_duration(shift_date,shift_date,previous_start,pdm_end_time)
           end_time =pdm_end_time
 
@@ -772,7 +781,11 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             cursor.execute(sql_query2,(end_time,duration,previous_event_id,))
             db_instance.commit()
         else:
-          last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
+          x_d = str(device_state['updated_on']).split(".")
+          x_d = str(x_d[0]).split(" ")
+          x_d = x_d[0]+" "+x_d[1]
+
+          last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
           last_status_time = str(last_status_time).split(" ")
           start_time=last_status_time[1]
           if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
