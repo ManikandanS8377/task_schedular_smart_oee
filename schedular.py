@@ -8,10 +8,15 @@ import time
 from itertools import groupby
 import json
 
+# For identify the current timestamp
+import datetime
+import pytz
+from pytz import timezone 
+
 #<-------------------------------------- Database connections ------------------------------------------------->
 
 class database_connection:
-  def __init__(self,sql_host = "localhost",sql_user="smartAd",sql_pass="WaDl@#smat1!",default_database="S1001",mongo_url ='mongodb://admin:smartories@165.22.208.52:27017/'):
+  def __init__(self,sql_host = "localhost",sql_user="root",sql_pass="quantanics123",default_database="S1001",mongo_url ='mongodb://admin:quantanics123@165.22.208.52:27017/'):
       self.sql_host = sql_host
       self.sql_user = sql_user
       self.sql_password = sql_pass
@@ -83,7 +88,7 @@ def info_insert_data(production_id,machine_gateway,machine_id,shift_date,calenda
     production = 0
   else:
     device_state = find_device_status(machine_gateway)
-    if device_state['device_status'] == "Offline":
+    if device_state['data']['device_status'] == "Offline":
       production = "Null"
     else:
       production =0
@@ -122,9 +127,9 @@ def split_past_future(active_records):
   future_data = []
   past_data = []
 
-  current_hour = int(int(24 if int(int(datetime.datetime.now().strftime("%H")))==0 else int(datetime.datetime.now().strftime("%H"))))-1
-  current_end_hour = int(int(24 if int(int(datetime.datetime.now().strftime("%H")))==0 else int(datetime.datetime.now().strftime("%H"))))
-  current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  current_hour = int(int(24 if int(int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H")))==0 else int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H"))))-1
+  current_end_hour = int(int(24 if int(int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H")))==0 else int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H"))))
+  current_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
   if int(current_end_hour)==0:
     current_date = (datetime.datetime.strptime(current_date, '%Y-%m-%d') - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
 
@@ -226,7 +231,7 @@ def process_data_pdm_info(machine,active_records, pdm_start_time, pdm_end_time,n
   present_data,past_data,future_data = split_past_future(active_records)
   shift = getTabledetails(machine)
   machine_id = shift[0]
-  calendar_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  calendar_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
 
   start_time = pdm_start_time
   end_time = pdm_end_time
@@ -270,7 +275,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
   shift = getTabledetails(machine)
   machine_id = shift[0][0]
   source = "Main"
-  calendar_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  calendar_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
 
   end_time_t = str(calendar_date)+" "+str(pdm_end_time)
   end_time_tmp = datetime.datetime.strptime(str(end_time_t), '%Y-%m-%d %H:%M:%S')
@@ -292,7 +297,8 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
   s=0 
   c = 0
   device_state = find_device_status(machine)
-  time_update = str(device_state['updated_on']).split(" ")
+  time_update = str(device_state['updated_on']).split(".")
+  time_update = str(time_update[0]).split(" ")
   time_update=time_update[0]+" "+time_update[1]
   time_update = datetime.datetime.strptime(str(time_update), '%Y-%m-%d %H:%M:%S')
   time_update_date = time_update.date()
@@ -615,10 +621,14 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
           previous_rno = previous_data[0]
           previous_event_id = previous_data[1]
 
-          last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
+          x_d = str(device_state['updated_on']).split(".")
+          x_d = str(x_d[0]).split(" ")
+          x_d = x_d[0]+" "+x_d[1]
+
+          last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
           last_status_time = str(last_status_time).split(" ")
           
-          if device_state['device_status']=="Online":
+          if device_state['data']['device_status']=="Online":
             duration = find_duration(shift_date,shift_date,previous_start,s_time)
             end_time =s_time
 
@@ -689,7 +699,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
           list_index = shift_list_list.index(shift_id)
           shift_start_duration = shiftTimings[list_index]
           # Function for find the duration of the event
-          if device_state['device_status']=="Online":
+          if device_state['data']['device_status']=="Online":
             duration = find_duration(shift_date,shift_date,shift_start_duration,s_time) 
             shot_count = 0;
             start_time =shift_start_duration;
@@ -701,7 +711,11 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             cursor.execute(sql_query,val)
             db_instance.commit()
           else:
-            last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
+            x_d = str(device_state['updated_on']).split(".")
+            x_d = str(x_d[0]).split(" ")
+            x_d = x_d[0]+" "+x_d[1]
+
+            last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
             last_status_time = str(last_status_time).split(" ")
             start_time =shift_start_duration;
             if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
@@ -753,7 +767,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
         previous_rno = previous_data[0]
         previous_event_id = previous_data[1]
 
-        if device_state['device_status']=="Online":
+        if device_state['data']['device_status']=="Online":
           duration = find_duration(shift_date,shift_date,previous_start,pdm_end_time)
           end_time =pdm_end_time
 
@@ -767,7 +781,11 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             cursor.execute(sql_query2,(end_time,duration,previous_event_id,))
             db_instance.commit()
         else:
-          last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
+          x_d = str(device_state['updated_on']).split(".")
+          x_d = str(x_d[0]).split(" ")
+          x_d = x_d[0]+" "+x_d[1]
+
+          last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
           last_status_time = str(last_status_time).split(" ")
           start_time=last_status_time[1]
           if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
@@ -958,7 +976,7 @@ def add_status_raw_data(lst):
 
 def getRawData(machine,split = 0,split_start = 0, split_end = 0):
 
-  now = datetime.datetime.now()
+  now = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
   db_instance = database_connection().connect_mongo()
   collection = db_instance[machine]
   s_hrs = str(int(24 if now.strftime("%H")=="00" else now.strftime("%H"))-1).zfill(2)
@@ -1041,7 +1059,7 @@ if __name__ == '__main__':
 
   #<---------------------- Loop break daywise ------------------------->
   while(True):
-    now = datetime.datetime.now() # Take current time to check the current shift hours
+    now = datetime.datetime.now(pytz.timezone('Asia/Kolkata')) # Take current time to check the current shift hours
     break_loop = 0
 
     if(int(now.strftime("%M"))==0): # you can change time here to run the code
@@ -1081,7 +1099,6 @@ if __name__ == '__main__':
 
 
 #<------------------------------------------------------ end ---------------------------------------------------->
-
 
 
 
