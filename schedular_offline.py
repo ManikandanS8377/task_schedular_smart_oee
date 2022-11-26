@@ -8,10 +8,15 @@ import time
 from itertools import groupby
 import json
 
+# For identify the current timestamp
+import datetime
+import pytz
+from pytz import timezone
+
 #<-------------------------------------- Database connections ------------------------------------------------->
 
 class database_connection:
-  def __init__(self,sql_host = "165.22.208.52",sql_user="smartAd",sql_pass="WaDl@#smat1!",default_database="S1001",mongo_url ='mongodb://admin:smartories@165.22.208.52:27017/'):
+  def __init__(self,sql_host = "localhost",sql_user="root",sql_pass="quantanics123",default_database="S1001",mongo_url ='mongodb://admin:quantanics123@165.22.208.52:27017/'):
       self.sql_host = sql_host
       self.sql_user = sql_user
       self.sql_password = sql_pass
@@ -184,9 +189,9 @@ def split_past_future(active_records):
   future_data = []
   past_data = []
 
-  current_hour = int(datetime.datetime.now().strftime("%H"))-1
-  current_end_hour = int(datetime.datetime.now().strftime("%H"))
-  current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+  current_hour = int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H"))-1
+  current_end_hour = int(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%H"))
+  current_date = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
   
   for i in active_records :
     data_arr = i['gateway_time'].split()
@@ -237,7 +242,7 @@ def process_data_pdm_info(offline_gateway,active_records, pdm_start_time, pdm_en
     file=offline_gateway.replace("/","_")+".txt"
     f= open(file,"a+")
     for x in present_data:
-      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
+      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
     f.close()
 
   elif len(future_data)>0:
@@ -246,7 +251,7 @@ def process_data_pdm_info(offline_gateway,active_records, pdm_start_time, pdm_en
     file=offline_gateway.replace("/","_")+".txt"
     f= open(file,"a+")
     for x in future_data:
-      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
+      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
     f.close()
 
   elif len(past_data)>0:
@@ -308,15 +313,16 @@ def getShiftList(shiftTimings):
 
 def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_time):
   device_state = find_device_status(offline_gateway)
-  time_update = str(device_state['updated_on']).split(" ")
+  time_update = str(device_state['updated_on']).split(".")
+  time_update = str(time_update[0]).split(" ")
   time_update=time_update[0]+" "+time_update[1]
   time_update = datetime.datetime.strptime(str(time_update), '%Y-%m-%d %H:%M:%S')
   time_update_date = time_update.date()
   time_update_time = time_update.time().hour
 
   # date_temp = datetime.datetime.strptime(past_data[0]['gateway_time'], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
-  device_status_net = device_state['device_status']
-  device_status_pow = device_state['meta_data']['is_device_powered_off']
+  device_status_net = device_state['data']['device_status']
+  device_status_pow = device_state['data']['meta_data']['is_device_powered_off']
 
   present_data,past_data,future_data = split_past_future(collection)
   if len(present_data)>0:
@@ -324,14 +330,14 @@ def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_
     file=offline_gateway.replace("/","_")+".txt"
     f= open(file,"a+")
     for x in past_data:
-      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
+      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
     f.close()
   elif len(future_data)>0:
     print("Process the future Data")
     file=offline_gateway.replace("/","_")+".txt"
     f= open(file,"a+")
     for x in past_data:
-      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
+      f.write("Event Timestamp: %s\rmachine_status: %s\rdowntime_status: %s\rstatus: %s\rshot_status: %s\rshot_count: %s\rmachine_id: %s\rgateway_time: %s\r\n" %(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d %H:%M:%S"),x['machine_status'],x['downtime_status'],x['status'],x['shot_status'],x['shot_count'],x['machine_id'],x['gateway_time']))
     f.close()
   elif len(past_data)>0:
   # else:
@@ -426,7 +432,7 @@ def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_
             
             temp_start = previous_start.split(":")
             if device_status_net=="Online":
-              calendar_date=datetime.datetime.now().strftime("%Y-%m-%d")
+              calendar_date=datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime("%Y-%m-%d")
               calendar_date= calendar_date+" "+"00:00:00"
               calendar_date =datetime.datetime.strptime(str(calendar_date), '%Y-%m-%d %H:%M:%S').date()
               if (c==0 and datetime.datetime.strptime(str(pdm_start_time), "%H:%M:%S").time().hour == time_update_time and time_update_date == calendar_date):
@@ -434,14 +440,14 @@ def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_
                 # Temporarly Hiding
                 # if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(calendar_date), "%Y-%m-%d").date()):
                 if device_status_pow=="true":
-                  time_update_end = str(device_state['meta_data']['device_off_start_time']).split(" ")
+                  time_update_end = str(device_state['data']['meta_data']['device_off_start_time']).split(" ")
                   time_update_end=time_update_end[0]+" "+time_update_end[1]
                   time_update_end = datetime.datetime.strptime(str(time_update_end), '%Y-%m-%d %H:%M:%S')
                   time_update_start = previous_data[2]+" "+previous_end
                   time_update_start = datetime.datetime.strptime(str(time_update_start), '%Y-%m-%d %H:%M:%S')
                   if (time_update_start.date() == time_update_end.date() and time_update_start.time() >= time_update_end.time()):
-                    end_time = str(device_state['meta_data']['device_off_start_time']).split(" ")[1]
-                    duration = find_duration(shift_date,str(str(device_state['meta_data']['device_off_start_time']).split(" ")[0]),previous_start,end_time)
+                    end_time = str(device_state['data']['meta_data']['device_off_start_time']).split(" ")[1]
+                    duration = find_duration(shift_date,str(str(device_state['data']['meta_data']['device_off_start_time']).split(" ")[0]),previous_start,end_time)
                     
                     sql_query1 = "UPDATE `pdm_events` SET `end_time`=%s,`duration`=%s WHERE `r_no`=%s"
                     cursor.execute(sql_query1,(end_time,duration,previous_rno,))
@@ -455,7 +461,7 @@ def process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_
 
                     start_time = end_time
 
-                    time_update_end = str(device_state['meta_data']['device_off_end_time']).split(" ")
+                    time_update_end = str(device_state['data']['meta_data']['device_off_end_time']).split(" ")
                     time_update_end=time_update_end[0]+" "+time_update_end[1]
                     time_update_end = datetime.datetime.strptime(str(time_update_end), '%Y-%m-%d %H:%M:%S')
 
@@ -684,6 +690,8 @@ def process_data(offline_gateway,collection, duration_start = 0, duration_end = 
   collection.sort(key=lambda x: x["gateway_time"])
 
   process_data_pdm_downtime(offline_gateway,collection,pdm_start_time,pdm_end_time)
+  # print(pdm_start_time)
+  # print(pdm_end_time)
   print("Process completed..!")
   return 1
 
@@ -800,7 +808,7 @@ def add_status_raw_data(lst):
 
 def getRawData(machine,split = 0,split_start = 0, split_end = 0):
 
-  now = datetime.datetime.now()
+  now = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
   db_instance = database_connection().connect_mongo()
   collection = db_instance[machine]
 
@@ -834,7 +842,7 @@ def getRawData(machine,split = 0,split_start = 0, split_end = 0):
 if __name__ == '__main__':
   #<---------------------- Loop break daywise --------sss----------------->
   while(True):
-    now = datetime.datetime.now() # Take current time to check the current shift hours
+    now = datetime.datetime.now(pytz.timezone('Asia/Kolkata')) # Take current time to check the current shift hours
     if(int(now.strftime("%M"))==0): # you can change time here to run the code
   #<------------------- Site wise data processing ------------------->
       print("trigger")
@@ -845,7 +853,6 @@ if __name__ == '__main__':
 #<------------------------------------- end of processing hourly ------------------------------------------------>
       time.sleep(65)                  
 #<------------------------------------------------------ end ---------------------------------------------------->
-
 
 
 
