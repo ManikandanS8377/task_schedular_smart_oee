@@ -643,9 +643,10 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
               db_instance.commit()
             event = previous_data[12]
           else:
+            start_time = pdm_start_time
             # last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
             # last_status_time = str(last_status_time).split(" ")
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               end_time = last_status_time[1]
             else:
               end_time = s_time
@@ -671,7 +672,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             shot_count=0
             event = "Offline"
             
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               timestamp_t = datetime.datetime.strptime(str(str(calendar_date)+" "+str(start_time)), '%Y-%m-%d %H:%M:%S')
               sql_query = "INSERT INTO `pdm_events`(`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`,`shot_count`, `event`, `duration`, `reason_mapped`, `is_split`,`part_id`,`tool_id` , `source`, `timestamp`) VALUES(%s ,%s ,%s , %s ,%s ,%s ,%s ,%s ,%s ,%s , %s, %s ,%s, %s ,%s)"
               val = (machine_id , calendar_date , shift_date , shift_id , start_time , end_time ,shot_count , event,duration , "0" , "0" ,part_id, tool_id, source, timestamp_t)
@@ -718,7 +719,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
             last_status_time = str(last_status_time).split(" ")
             start_time =shift_start_duration;
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               end_time = last_status_time[1]
             else:
               end_time = s_time
@@ -734,7 +735,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
             end_time = s_time
             duration = find_duration(shift_date,last_status_time[0],start_time,end_time)
             event = "Offline"
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               timestamp_t = datetime.datetime.strptime(str(str(calendar_date)+" "+str(start_time)), '%Y-%m-%d %H:%M:%S')
               sql_query = "INSERT INTO `pdm_events`(`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`,`shot_count`, `event`, `duration`, `reason_mapped`, `is_split`,`part_id`,`tool_id`,`source`, `timestamp`) VALUES(%s ,%s ,%s , %s ,%s ,%s ,%s ,%s ,%s ,%s , %s, %s ,%s, %s,%s)"
               val = (machine_id , calendar_date , shift_date , shift_id , start_time , end_time ,shot_count , event,duration , "0" , "0" ,part_id, tool_id, source, timestamp_t)
@@ -788,7 +789,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
           last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
           last_status_time = str(last_status_time).split(" ")
           start_time=last_status_time[1]
-          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
             end_time = last_status_time[1]
           else:
             end_time = pdm_end_time
@@ -812,7 +813,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
           duration=find_duration(shift_date,last_status_time[0],start_time,end_time)
           event = "Offline"
           shot_count =0;
-          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
             timestamp_t = datetime.datetime.strptime(str(str(calendar_date)+" "+str(start_time)), '%Y-%m-%d %H:%M:%S')
             sql_query = "INSERT INTO `pdm_events`(`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`,`shot_count`, `event`, `duration`, `reason_mapped`, `is_split`,`part_id`,`tool_id`, `source` , `timestamp`) VALUES(%s ,%s ,%s , %s ,%s ,%s ,%s ,%s ,%s ,%s , %s, %s ,%s ,%s, %s)"
             val = (machine_id , calendar_date , shift_date , shift_id , start_time , end_time ,shot_count , event,duration , "0" , "0" ,part_id, tool_id, source , timestamp_t)
@@ -1062,7 +1063,7 @@ if __name__ == '__main__':
     now = datetime.datetime.now(pytz.timezone('Asia/Kolkata')) # Take current time to check the current shift hours
     break_loop = 0
 
-    if(int(now.strftime("%M"))==0): # you can change time here to run the code
+    if(int(now.strftime("%M")) ==0): # you can change time here to run the code
   #<------------------- Machine wise data processing ------------------->
       for count,value in enumerate(machines):
 
