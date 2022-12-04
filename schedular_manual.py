@@ -11,7 +11,7 @@ import json
 #<-------------------------------------- Database connections ------------------------------------------------->
 
 class database_connection:
-  def __init__(self,sql_host = "localhost",sql_user="root",sql_pass="quantanics123",default_database="S1001",mongo_url ='mongodb://admin:quantanics123@165.22.208.52:27017/'):
+  def __init__(self,sql_host = "localhost",sql_user="smtechadmin",sql_pass="admin@smtech",default_database="S1001",mongo_url ='mongodb://smtechadmin:admin%40smtech@smartories.com:27017/'):
       self.sql_host = sql_host
       self.sql_user = sql_user
       self.sql_password = sql_pass
@@ -24,7 +24,7 @@ class database_connection:
                                           user = self.sql_user,
                                           password = self.sql_password,
                                           # database = self.database)
-                                          database = "S1001")
+                                          database = "S1002")
       return self.sqldb
 
     except:
@@ -298,7 +298,8 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
   time_update_date = time_update.date()
   time_update_time = time_update.time().hour
   date_temp = (datetime.datetime.strptime(str(calendar_date), '%Y-%m-%d')).date()
-
+  start_time = pdm_start_time
+  
   if l>0: #Condition to check whether the present data present in the present data bucket
     j=0
     flag_s=0
@@ -647,7 +648,7 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
           else:
             # last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
             # last_status_time = str(last_status_time).split(" ")
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               end_time = last_status_time[1]
             else:
               end_time = s_time
@@ -671,7 +672,7 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
             shot_count=0
             event = "Offline"
             
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               timestamp_t = datetime.datetime.strptime(str(str(calendar_date)+" "+str(start_time)), '%Y-%m-%d %H:%M:%S')
               sql_query = "INSERT INTO `pdm_events`(`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`,`shot_count`, `event`, `duration`, `reason_mapped`, `is_split`,`part_id`,`tool_id` , `source`, `timestamp`) VALUES(%s ,%s ,%s , %s ,%s ,%s ,%s ,%s ,%s ,%s , %s, %s ,%s, %s ,%s)"
               val = (machine_id , calendar_date , shift_date , shift_id , start_time , end_time ,shot_count , event,duration , "0" , "0" ,part_id, tool_id, source, timestamp_t)
@@ -718,7 +719,7 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
             last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
             last_status_time = str(last_status_time).split(" ")
             start_time =shift_start_duration;
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               end_time = last_status_time[1]
             else:
               end_time = s_time
@@ -734,7 +735,7 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
             end_time = s_time
             duration = find_duration(shift_date,last_status_time[0],start_time,end_time)
             event = "Offline"
-            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+            if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
               timestamp_t = datetime.datetime.strptime(str(str(calendar_date)+" "+str(start_time)), '%Y-%m-%d %H:%M:%S')
               sql_query = "INSERT INTO `pdm_events`(`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`,`shot_count`, `event`, `duration`, `reason_mapped`, `is_split`,`part_id`,`tool_id`,`source`, `timestamp`) VALUES(%s ,%s ,%s , %s ,%s ,%s ,%s ,%s ,%s ,%s , %s, %s ,%s, %s,%s)"
               val = (machine_id , calendar_date , shift_date , shift_id , start_time , end_time ,shot_count , event,duration , "0" , "0" ,part_id, tool_id, source, timestamp_t)
@@ -787,7 +788,7 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
           last_status_time = datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S')
           last_status_time = str(last_status_time).split(" ")
           start_time=last_status_time[1]
-          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
             end_time = last_status_time[1]
           else:
             end_time = pdm_end_time
@@ -810,7 +811,7 @@ def process_data_pdm_downtime(machine,hour,collection,shiftTimings,pdm_start_tim
           duration=find_duration(shift_date,last_status_time[0],start_time,end_time)
           event = "Offline"
           shot_count =0;
-          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(last_status_time[0]), "%Y:%m:%d").date()):
+          if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
             timestamp_t = datetime.datetime.strptime(str(str(calendar_date)+" "+str(start_time)), '%Y-%m-%d %H:%M:%S')
             sql_query = "INSERT INTO `pdm_events`(`machine_id`, `calendar_date`, `shift_date`, `shift_id`, `start_time`, `end_time`,`shot_count`, `event`, `duration`, `reason_mapped`, `is_split`,`part_id`,`tool_id`, `source` , `timestamp`) VALUES(%s ,%s ,%s , %s ,%s ,%s ,%s ,%s ,%s ,%s , %s, %s ,%s ,%s, %s)"
             val = (machine_id , calendar_date , shift_date , shift_id , start_time , end_time ,shot_count , event,duration , "0" , "0" ,part_id, tool_id, source , timestamp_t)
@@ -1054,7 +1055,7 @@ if __name__ == '__main__':
   shift_hours = [int(i.strftime("%H")) for i in shiftTimings]
   shift_min = [int(i.strftime("%M")) for i in shiftTimings]
   shift_list = getShiftList(shiftTimings)
-  hour = "2022-10-12 09:00:00"
+  hour = "2022-12-03 20:00:00"
   hour = datetime.datetime.strptime(hour, '%Y-%m-%d %H:%M:%S')
   #<---------------------- Loop break daywise ------------------------->
   while(True):
@@ -1082,7 +1083,8 @@ if __name__ == '__main__':
         else:
           print("trigger")
           collection = getRawData(machine,hour)
-          process_data(shiftTimings,hour,machine,collection,shift_list, duration_start = 0, duration_end = 0)
+          print(len(collection))
+          # process_data(shiftTimings,hour,machine,collection,shift_list, duration_start = 0, duration_end = 0)
 
         # print(f'{0} completed',(machine))
 
