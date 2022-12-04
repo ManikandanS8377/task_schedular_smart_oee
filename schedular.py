@@ -304,7 +304,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
   time_update_date = time_update.date()
   time_update_time = time_update.time().hour
   date_temp = (datetime.datetime.strptime(str(calendar_date), '%Y-%m-%d')).date()
-
+  start_time = pdm_start_time
   
   if l>0: #Condition to check whether the present data present in the present data bucket
     j=0
@@ -643,7 +643,7 @@ def process_data_pdm_downtime(machine,collection,shiftTimings,pdm_start_time,shi
               db_instance.commit()
             event = previous_data[12]
           else:
-            start_time = pdm_start_time
+            # start_time = pdm_start_time
             # last_status_time = datetime.datetime.strptime(str(device_state['updated_on']), '%Y-%m-%d %H:%M:%S')
             # last_status_time = str(last_status_time).split(" ")
             if (datetime.datetime.strptime(str(start_time), "%H:%M:%S").time().hour == time_update_time and date_temp==datetime.datetime.strptime(str(x_d), '%Y-%m-%d %H:%M:%S').date()):
